@@ -1,0 +1,14 @@
+# @package _global_
+
+model_name: Llama3_1_8B_Tulu_3_PPO_RLVF
+
+module:
+  _target_: recipe.models.${model_name}
+  temperature: 0.8
+  top_p: 0.95
+  # 99.9% of responses are below 4k tokens; 
+  # this avoids infinite generation loops in model responses
+  max_tokens: 4000
+  convert_prompt_to_chat: True
+  tensor_parallel_size: 1
+  max_model_len: 32768   # Context window

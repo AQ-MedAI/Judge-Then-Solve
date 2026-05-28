@@ -1,0 +1,9 @@
+# @package _global_
+
+dataset_name: FreshQADataset
+
+datamodule:
+  _target_: recipe.abstention_datasets.freshqa.${dataset_name}
+  path_baseline: ${data_dir}/freshqa/FreshQA_v07281025.csv
+  path_updated: ${data_dir}/freshqa/FreshQA_v112425.csv
+  max_num_samples: null

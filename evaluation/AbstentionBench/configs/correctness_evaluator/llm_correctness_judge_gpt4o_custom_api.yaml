@@ -1,0 +1,15 @@
+# @package _global_
+# 使用 GPT-4o 作为 correctness judge（通过自定义 base_url + api_key）
+# 目标：与 abstention_detector=llm_judge_gpt4o_custom_api 使用同一个 judge_model 配置，
+# 这样 main.py 里共享 judge 的一致性校验不会报错。
+
+correctness_evaluator:
+  _target_: recipe.evaluation.LLMJudgeCorrectnessEvaluator
+  judge_model:
+    _target_: recipe.models.GPT4oAPI
+    base_url: ${oc.env:JUDGE_BASE_URL,${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}}
+    api_key: ${oc.env:JUDGE_API_KEY,${oc.env:OPENAI_API_KEY}}
+    model_name: "gpt-4o-2024-11-20"
+    temperature: 0.
+    max_tokens: 100
+  save_dir: ${save_dir}

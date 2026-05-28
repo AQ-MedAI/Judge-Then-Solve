@@ -1,0 +1,28 @@
+# @package _global_
+
+correctness_evaluator:
+  _target_: recipe.evaluation.LLMJudgeCorrectnessEvaluator
+  judge_model:
+    _target_: recipe.models.Llama3_3_70B_Instruct
+    temperature: 0.
+    top_p: 0.95
+    max_tokens: 100
+    convert_prompt_to_chat: True
+    tensor_parallel_size: 8
+    # This context window is too small for a few (prompt, response) pairs, however,
+    # we can't accommodate a larger context window on v100.
+    max_model_len: 32768
+  save_dir: ${save_dir}
+
+abstention_detector_launcher:
+  gpus_per_node: 8
+  nodes: 1
+  tasks_per_node: 1
+  cpus_per_task: 8
+  timeout_min: 400
+  slurm_partition: devlab,learnlab,learnfair
+  mem_gb: 480
+  slurm_constraint: "volta32gb"
+  exclude: "learnfair7486"
+  slurm_srun_args: ["-vv", "--cpu-bind", "none"]
+  comment: "eval step"

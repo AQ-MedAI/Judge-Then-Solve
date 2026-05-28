@@ -1,0 +1,18 @@
+# @package _global_
+#
+# MediQ 的随机子集（默认随机采样 300 条，用于快速调试/评测）
+#
+# 用法：
+#   python main.py -m mode=local model=custom_api_env dataset=sub_mediq module.model_name="..."
+#
+
+dataset_name: SubMediQDataset
+
+datamodule:
+  _target_: recipe.abstention_datasets.mediq.${dataset_name}
+  data_dir: ${data_dir}/mediq
+  icraftmd_url: "https://raw.githubusercontent.com/stellalisy/mediQ/refs/heads/main/data/all_craft_md.jsonl"
+  imedqa_url: "https://raw.githubusercontent.com/stellalisy/mediQ/refs/heads/main/data/all_dev_good.jsonl"
+  # 严格采样 should_abstain=True / False 各 150 条
+  per_class_samples: 150
+

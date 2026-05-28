@@ -1,0 +1,12 @@
+# @package _global_
+
+model_name: Gemini15ProAPI
+
+module:
+  _target_: recipe.models.${model_name}
+  # 99.9% of responses are below 4k tokens;
+  # this avoids infinite generation loops in model responses
+  max_tokens: 4000
+  # TODO: for now setting this to 0.8 following all other models,
+  # however, this might be suboptimal since the default value is 1.
+  temperature: 0.8

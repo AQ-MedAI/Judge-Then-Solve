@@ -1,0 +1,38 @@
+# @package _global_
+defaults:
+  - override /hydra/launcher: submitit_slurm
+
+project: abstention-bench
+
+stage: 1
+
+gpus: 1
+
+common_dir: /large_experiments/robust_vlm/abstention-bench
+
+data_dir: ${common_dir}/datasets
+logs_dir: ${common_dir}/logs/test/${now:%Y-%m-%d_%H-%M-%S}
+save_dir: ${common_dir}/results/test/${now:%Y-%m-%d_%H-%M-%S}
+
+hydra:
+  launcher:
+    gpus_per_node: ${gpus}
+    tasks_per_node: ${gpus}
+    cpus_per_task: 8
+    mem_gb: 480
+    nodes: 1
+    timeout_min: 400
+    max_num_timeout: 5
+    partition: devlab,learnlab,learnfair
+    constraint: "volta32gb"
+    comment: ${project}
+  # tells hydra to store logs for sweeps or runs in logs_dir
+  job:
+    # when exceuting a job change to the logs_dir
+    chdir: True
+  run:
+    dir: ${logs_dir}
+  sweep:
+    dir: ${logs_dir}
+
+seed: 123456789

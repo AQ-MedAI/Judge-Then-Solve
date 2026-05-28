@@ -1,0 +1,9 @@
+# @package _global_
+
+correctness_evaluator:
+  _target_: recipe.evaluation.LLMJudgeCorrectnessEvaluator
+  judge_model:
+    _target_: recipe.models.GPT4oAPI
+    temperature: 0.
+    max_tokens: 100
+  save_dir: ${save_dir}

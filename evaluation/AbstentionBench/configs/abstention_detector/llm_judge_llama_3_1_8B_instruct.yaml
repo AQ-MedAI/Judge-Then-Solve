@@ -1,0 +1,34 @@
+# @package _global_
+
+judge_name: LLMJudge_Llama_3_1_8B
+
+abstention_detector:
+  _target_: recipe.evaluation.LLMJudgeAbstentionDetector
+  judge_model:
+    _target_: recipe.models.Llama3_1_8B_Instruct
+    # Setting temp. to 0 means we are generating output as
+    # arg max {P(yes | context), P(no | context)} in the judge.
+    # This also follows the judge setup in prior works like
+    # CoCoNot and HarmBench.
+    temperature: 0.
+    top_p: 0.95
+    max_tokens: 100
+    convert_prompt_to_chat: True
+    tensor_parallel_size: 1
+    # This context window is too small for a few (prompt, response) pairs, however,
+    # we can't accommodate a larger context window on v100.
+    max_model_len: 32768
+  save_dir: ${save_dir}
+
+abstention_detector_launcher:
+  gpus_per_node: 1
+  nodes: 1
+  tasks_per_node: 1
+  cpus_per_task: 8
+  timeout_min: 400
+  slurm_partition: devlab,learnlab,learnfair
+  mem_gb: 480
+  slurm_constraint: "volta32gb"
+  exclude: "learnfair7486"
+  slurm_srun_args: ["-vv", "--cpu-bind", "none"]
+  comment: "eval step"

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Viewer - FreshQA & KUQ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        select, button, input {
+            padding: 8px 16px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        select:hover, button:hover {
+            border-color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-left: auto;
+            font-size: 14px;
+        }
+
+        .stat-item {
+            padding: 8px 16px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #212529;
+            font-size: 16px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .sample-card {
+            margin-bottom: 20px;
+        }
+
+        .field {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .field-label {
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .field-content {
+            color: #212529;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-true {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-false {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-null {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .metadata {
+            background: #e7f3ff;
+            border-left-color: #0066cc;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .page-info {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .filter-section {
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .filter-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Dataset Viewer</h1>
+            <p>FreshQA & KUQ Abstention Datasets</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="datasetSelect">数据集:</label>
+                <select id="datasetSelect">
+                    <option value="freshqa">FreshQA</option>
+                    <option value="kuq">KUQ</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="sampleIndex">样本编号:</label>
+                <input type="number" id="sampleIndex" min="0" value="0" style="width: 100px;">
+                <button onclick="goToSample()">跳转</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">总样本数</div>
+                    <div class="stat-value" id="totalSamples">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">当前索引</div>
+                    <div class="stat-value" id="currentIndex">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="filter-section">
+                <div class="filter-title">🔍 筛选选项</div>
+                <div class="filter-options">
+                    <div class="filter-option">
+                        <input type="checkbox" id="filterShouldAbstain" checked>
+                        <label for="filterShouldAbstain">显示应该弃权的样本</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="filterShouldAnswer" checked>
+                        <label for="filterShouldAnswer">显示应该回答的样本</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="filterModelAbstained" checked>
+                        <label for="filterModelAbstained">显示模型弃权的样本</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="filterModelAnswered" checked>
+                        <label for="filterModelAnswered">显示模型回答的样本</label>
+                    </div>
+                    <button onclick="applyFilters()">应用筛选</button>
+                    <button onclick="resetFilters()">重置</button>
+                </div>
+            </div>
+
+            <div id="sampleContent" class="loading">
+                加载中...
+            </div>
+        </div>
+
+        <div class="navigation">
+            <div class="nav-buttons">
+                <button onclick="previousSample()" id="prevBtn">← 上一个</button>
+                <button onclick="nextSample()" id="nextBtn">下一个 →</button>
+            </div>
+            <div class="page-info" id="pageInfo">-</div>
+        </div>
+    </div>
+
+    <script>
+        let datasets = {
+            freshqa: null,
+            kuq: null
+        };
+        let currentDataset = 'freshqa';
+        let currentIndex = 0;
+        let filteredIndices = [];
+        let currentFilteredIndex = 0;
+
+        // Load datasets
+        async function loadDatasets() {
+            try {
+                const freshqaResponse = await fetch('freshqa_data.json');
+                datasets.freshqa = await freshqaResponse.json();
+
+                const kuqResponse = await fetch('kuq_data.json');
+                datasets.kuq = await kuqResponse.json();
+
+                applyFilters();
+                displaySample();
+            } catch (error) {
+                document.getElementById('sampleContent').innerHTML =
+                    '<div class="loading">❌ 加载数据失败: ' + error.message + '</div>';
+            }
+        }
+
+        function applyFilters() {
+            const data = datasets[currentDataset];
+            if (!data) return;
+
+            const shouldAbstain = document.getElementById('filterShouldAbstain').checked;
+            const shouldAnswer = document.getElementById('filterShouldAnswer').checked;
+            const modelAbstained = document.getElementById('filterModelAbstained').checked;
+            const modelAnswered = document.getElementById('filterModelAnswered').checked;
+
+            filteredIndices = [];
+            data.responses.forEach((sample, idx) => {
+                const promptShouldAbstain = sample.prompt.should_abstain;
+                const modelDidAbstain = sample.is_abstention;
+
+                let includeByGT = (promptShouldAbstain && shouldAbstain) || (!promptShouldAbstain && shouldAnswer);
+                let includeByModel = (modelDidAbstain && modelAbstained) || (!modelDidAbstain && modelAnswered);
+
+                if (includeByGT && includeByModel) {
+                    filteredIndices.push(idx);
+                }
+            });
+
+            currentFilteredIndex = 0;
+            updateStats();
+            displaySample();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterShouldAbstain').checked = true;
+            document.getElementById('filterShouldAnswer').checked = true;
+            document.getElementById('filterModelAbstained').checked = true;
+            document.getElementById('filterModelAnswered').checked = true;
+            applyFilters();
+        }
+
+        function displaySample() {
+            const data = datasets[currentDataset];
+            if (!data || filteredIndices.length === 0) {
+                document.getElementById('sampleContent').innerHTML =
+                    '<div class="loading">没有符合筛选条件的样本</div>';
+                return;
+            }
+
+            currentIndex = filteredIndices[currentFilteredIndex];
+            const sample = data.responses[currentIndex];
+
+            let html = '<div class="sample-card">';
+
+            // Question
+            html += `
+                <div class="field">
+                    <div class="field-label">❓ 问题 (Question)</div>
+                    <div class="field-content">${escapeHtml(sample.prompt.question)}</div>
+                </div>
+            `;
+
+            // Ground Truth Answers
+            if (sample.prompt.reference_answers && sample.prompt.reference_answers.length > 0) {
+                html += `
+                    <div class="field">
+                        <div class="field-label">✅ 标准答案 (Ground Truth)</div>
+                        <div class="field-content">${sample.prompt.reference_answers.map(a => escapeHtml(a)).join('<br>')}</div>
+                    </div>
+                `;
+            }
+
+            // Should Abstain
+            html += `
+                <div class="field">
+                    <div class="field-label">
+                        🎯 是否应该弃权 (Should Abstain)
+                        <span class="badge ${getBadgeClass(sample.prompt.should_abstain)}">${sample.prompt.should_abstain ? 'YES' : 'NO'}</span>
+                    </div>
+                </div>
+            `;
+
+            // Model Response
+            html += `
+                <div class="field">
+                    <div class="field-label">🤖 模型回答 (Model Response)</div>
+                    <div class="field-content">${escapeHtml(sample.response || sample.response_or_abstention || 'N/A')}</div>
+                </div>
+            `;
+
+            // Model Abstained
+            html += `
+                <div class="field">
+                    <div class="field-label">
+                        🔍 模型是否弃权 (Model Abstained)
+                        <span class="badge ${getBadgeClass(sample.is_abstention)}">${sample.is_abstention ? 'YES' : 'NO'}</span>
+                    </div>
+                </div>
+            `;
+
+            // Abstention Correctness
+            if (sample.is_abstention_correct !== null && sample.is_abstention_correct !== undefined) {
+                html += `
+                    <div class="field">
+                        <div class="field-label">
+                            ⚖️ 弃权决策是否正确 (Abstention Correct)
+                            <span class="badge ${getBadgeClass(sample.is_abstention_correct)}">${sample.is_abstention_correct ? 'YES' : 'NO'}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Response Correctness
+            if (sample.is_response_correct !== null && sample.is_response_correct !== undefined) {
+                html += `
+                    <div class="field">
+                        <div class="field-label">
+                            📝 回答是否正确 (Response Correct)
+                            <span class="badge ${getBadgeClass(sample.is_response_correct)}">${sample.is_response_correct ? 'YES' : 'NO'}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Judge Response
+            if (sample.full_judge_response) {
+                html += `
+                    <div class="field">
+                        <div class="field-label">👨‍⚖️ Judge 判断 (Full Judge Response)</div>
+                        <div class="field-content">${escapeHtml(sample.full_judge_response)}</div>
+                    </div>
+                `;
+            }
+
+            // Metadata
+            if (sample.prompt.metadata) {
+                html += `
+                    <div class="field metadata">
+                        <div class="field-label">📋 元数据 (Metadata)</div>
+                        <div class="field-content">${JSON.stringify(sample.prompt.metadata, null, 2)}</div>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+
+            document.getElementById('sampleContent').innerHTML = html;
+            updateNavigation();
+        }
+
+        function getBadgeClass(value) {
+            if (value === true) return 'badge-true';
+            if (value === false) return 'badge-false';
+            return 'badge-null';
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return 'N/A';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function updateStats() {
+            const data = datasets[currentDataset];
+            document.getElementById('totalSamples').textContent = filteredIndices.length;
+            document.getElementById('currentIndex').textContent = currentIndex;
+        }
+
+        function updateNavigation() {
+            document.getElementById('prevBtn').disabled = currentFilteredIndex === 0;
+            document.getElementById('nextBtn').disabled = currentFilteredIndex >= filteredIndices.length - 1;
+            document.getElementById('pageInfo').textContent =
+                `${currentFilteredIndex + 1} / ${filteredIndices.length} (原始索引: ${currentIndex})`;
+            document.getElementById('sampleIndex').value = currentIndex;
+            updateStats();
+        }
+
+        function previousSample() {
+            if (currentFilteredIndex > 0) {
+                currentFilteredIndex--;
+                displaySample();
+            }
+        }
+
+        function nextSample() {
+            if (currentFilteredIndex < filteredIndices.length - 1) {
+                currentFilteredIndex++;
+                displaySample();
+            }
+        }
+
+        function goToSample() {
+            const targetIndex = parseInt(document.getElementById('sampleIndex').value);
+            const position = filteredIndices.indexOf(targetIndex);
+            if (position !== -1) {
+                currentFilteredIndex = position;
+                displaySample();
+            } else {
+                alert('该索引不在当前筛选结果中');
+            }
+        }
+
+        document.getElementById('datasetSelect').addEventListener('change', (e) => {
+            currentDataset = e.target.value;
+            applyFilters();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') previousSample();
+            if (e.key === 'ArrowRight') nextSample();
+        });
+
+        // Load data on page load
+        loadDatasets();
+    </script>
+</body>
+</html>

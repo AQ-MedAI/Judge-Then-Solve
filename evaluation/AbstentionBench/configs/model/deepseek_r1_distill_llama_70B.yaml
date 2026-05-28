@@ -1,0 +1,31 @@
+# @package _global_
+
+model_name: DeepSeek_R1_Distill_Llama_70B
+
+module:
+  _target_: recipe.models.${model_name}
+  local_model_path: /large_experiments/robust_vlm/abstention-bench/huggingface/DeepSeek-R1-Distill-Llama-70B
+  temperature: 0.8
+  top_p: 0.95
+  # 99.8% of responses are below 4k tokens;
+  # this avoids infinite generation loops in model responses
+  max_tokens: 4000
+  max_reasoning_tokens: 4000
+  # Setting this parameters to True will use a special string
+  # along the lines of "**Final Answer**\n\\boxed{" to additionally
+  # force DeepSeek to stop the thinking chain.
+  math_budget_forcing: False
+  convert_prompt_to_chat: True
+  tensor_parallel_size: 8
+  max_model_len: 32768 # Context window
+  gpu_memory_utilization: 0.95
+  use_system_prompt: False
+  trust_remote_code: True
+  revision: "b1c0b44b4369b597ad119a196caf79a9c40e141e"
+  tokenizer_revision: "b1c0b44b4369b597ad119a196caf79a9c40e141e"
+
+# override timeout
+hydra:
+  launcher:
+    # 5x the default timeout
+    timeout_min: 2000

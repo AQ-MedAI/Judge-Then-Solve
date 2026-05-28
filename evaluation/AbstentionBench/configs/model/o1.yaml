@@ -1,0 +1,11 @@
+# @package _global_
+
+model_name: o1API
+
+module:
+  _target_: recipe.models.${model_name}
+  max_tokens: null  # total number of tokens `max_completion_tokens` include output and reasoning tokens
+  seed: ${seed}
+  # Note: o1-preview only allow temperature=1 and other values are unsupported.
+
+override inference_batch_size: 70

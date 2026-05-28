@@ -1,0 +1,16 @@
+# @package _global_
+# 自定义 OpenAI 兼容 API 模型配置
+# 使用 OpenAI-compatible API 服务
+
+model_name: CustomOpenAIModel
+
+module:
+  _target_: recipe.models.CustomOpenAIModel
+  model_name: "kimi-k2-0905-preview"
+  api_key: ${oc.env:SGLANG_API_KEY,${oc.env:CUSTOM_API_KEY,EMPTY}}
+  base_url: ${oc.env:SGLANG_BASE_URL,${oc.env:CUSTOM_API_BASE_URL}}
+  # 99.9% of responses are below 4k tokens;
+  # this avoids infinite generation loops in model responses
+  max_tokens: 4000
+  temperature: 0.8
+  seed: ${seed}

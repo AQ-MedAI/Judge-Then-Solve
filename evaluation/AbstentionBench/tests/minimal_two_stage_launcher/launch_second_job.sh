@@ -1,0 +1,1 @@
+python launch.py -m --config-path "$1" --config-name second_stage_config.yaml hydra/launcher=submitit_slurm +hydra.launcher.gpus_per_node=1 +hydra.launcher.partition=devlab

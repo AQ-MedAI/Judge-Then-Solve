@@ -1,0 +1,31 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.env
+.venv/
+venv/
+
+# Generated evaluation artifacts
+evaluation/**/results/
+evaluation/**/logs/
+evaluation/**/plots/
+evaluation/**/.pytest_cache/
+
+# Generated training artifacts
+training/**/my_logs/
+training/**/logs/
+training/**/results/
+training/**/wandb/
+training/**/checkpoints/
+training/**/.pytest_cache/
+outputs/
+
+# Large/local model artifacts
+checkpoints/
+models/
+train_torch_list/
+after_train_torch_list/
+*.safetensors
+*.bin
+*.pt
+*.pth

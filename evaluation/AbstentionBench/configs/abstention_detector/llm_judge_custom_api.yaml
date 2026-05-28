@@ -1,0 +1,28 @@
+# @package _global_
+# 使用自定义 API 作为 Judge 模型
+# 适用于使用自定义 OpenAI-compatible API 服务
+
+judge_name: LLMJudgeCustomAPI
+
+abstention_detector:
+  _target_: recipe.evaluation.LLMJudgeAbstentionDetector
+  judge_model:
+    _target_: recipe.models.CustomOpenAIModel
+    model_name: "kimi-k2-0905-preview"
+    api_key: ${oc.env:JUDGE_API_KEY,${oc.env:OPENAI_API_KEY}}
+    base_url: ${oc.env:JUDGE_BASE_URL,${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}}
+    # Setting temp. to 0 means we are generating output as
+    # arg max {P(yes | context), P(no | context)} in the judge.
+    # This also follows the judge setup in prior works like
+    # CoCoNot and HarmBench.
+    max_tokens: 100
+    temperature: 0.
+  save_dir: ${save_dir}
+
+abstention_detector_launcher:
+  gpus_per_node: 0  # API 不需要 GPU
+  nodes: 1
+  tasks_per_node: 1
+  cpus_per_task: 8
+  timeout_min: 400
+  mem_gb: 16  # API 不需要太多内存

@@ -1,0 +1,6 @@
+# @package _global_
+
+model_name: DummyModel
+
+module:
+  _target_: recipe.models.DummyModel

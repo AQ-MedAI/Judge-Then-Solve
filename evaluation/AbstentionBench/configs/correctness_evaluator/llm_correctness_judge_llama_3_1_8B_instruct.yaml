@@ -1,0 +1,19 @@
+# @package _global_
+
+correctness_evaluator:
+  _target_: recipe.evaluation.LLMJudgeCorrectnessEvaluator
+  judge_model:
+    _target_: recipe.models.Llama3_1_8B_Instruct
+    temperature: 0.
+    top_p: 0.95
+    max_tokens: 100
+    # This context window is too small for a few (prompt, response) pairs, however,
+    # we can't accommodate a larger context window on v100.
+    max_model_len: 32768
+    convert_prompt_to_chat: True
+    tensor_parallel_size: 1
+  # Setting this to True will use a different correctness judge
+  # prompt which reduces some % of judge refusals and contextualizes
+  # math / science specific scoring.
+  math_mode: False
+  save_dir: ${save_dir}

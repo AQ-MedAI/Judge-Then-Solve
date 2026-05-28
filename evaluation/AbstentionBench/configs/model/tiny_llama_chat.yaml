@@ -1,0 +1,9 @@
+# @package _global_
+
+model_name: TinyLlamaChat
+
+
+module:
+  _target_: recipe.models.${model_name}
+  # Indicating amount of resources for consistency with other models.
+  tensor_parallel_size: 1
