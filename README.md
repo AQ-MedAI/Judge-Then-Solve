@@ -1,4 +1,4 @@
-# Official Repository
+# Judge-Then-Solve
 
 This repository contains the training and evaluation code prepared for release.
 
