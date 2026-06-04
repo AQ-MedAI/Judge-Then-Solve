@@ -63,6 +63,14 @@ bash scripts/run_sft.sh
 
 The SFT script uses `data/sft/sft_data_final.jsonl` by default.
 
+For Judge-then-Solve Qwen3 variants, apply the release chat template to the HF checkpoint first:
+
+```bash
+cd training/sft_swift
+python scripts/apply_jts_chat_template.py \
+  --checkpoint-dir /path/to/qwen3-hf-checkpoint
+```
+
 The RL training code expects model weights in Megatron torch distributed format. Convert each HuggingFace checkpoint before launching RL training.
 
 Set common paths:
@@ -136,7 +144,7 @@ ORIGIN_HF_CKPT=$MODEL_ROOT/DeepSeek-R1-Distill-Qwen-14B-chat-template-sft \
 bash scripts/convert_megatron_to_hf.sh
 ```
 
-For reproducing the Judge-then-Solve setting, replace the relevant HuggingFace tokenizer/config chat template before HF-to-Megatron conversion. The exact replacement template should be inserted here once finalized.
+For reproducing the Judge-then-Solve setting, use `training/sft_swift/qwen3_jts_tokenizer_config.json` as the tokenizer config for Qwen3 chat-template variants before SFT or HF-to-Megatron conversion.
 
 ## Run All Evaluations
 

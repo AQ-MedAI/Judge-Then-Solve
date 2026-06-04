@@ -17,6 +17,17 @@ By default the script uses:
 data/sft/sft_data_final.jsonl
 ```
 
+## Judge-then-Solve Chat Template
+
+For Qwen3 Judge-then-Solve runs, apply the provided chat template to the HuggingFace checkpoint before SFT or before converting the HF checkpoint to Megatron format:
+
+```bash
+python scripts/apply_jts_chat_template.py \
+  --checkpoint-dir /path/to/qwen3-hf-checkpoint
+```
+
+This writes `tokenizer_config.json` using `qwen3_jts_tokenizer_config.json` and backs up the previous config as `tokenizer_config.json.bak`.
+
 The original training command used full-parameter SFT with 8 GPUs, `qwen3_moe_thinking`, `bfloat16`, 3 epochs, max length 4096, batch size 1 per GPU, gradient accumulation 8, learning rate `1e-5`, and DeepSpeed ZeRO-3.
 
 After SFT finishes, convert the resulting HF checkpoint to Megatron torch distributed format before RL:
@@ -28,5 +39,4 @@ OUTPUT_MEGATRON_CKPT=/path/to/models/train_torch_list/DeepSeek-R1-Distill-Qwen-1
 bash scripts/convert_hf_to_megatron.sh
 ```
 
-For Judge-then-Solve, replace the tokenizer/config chat template before running SFT or before HF-to-Megatron conversion, depending on which checkpoint variant you are preparing. The finalized chat template should be inserted into the tokenizer config once available.
-
+For the chat-template variants, use the checkpoint after applying this template as the source checkpoint for SFT and/or HF-to-Megatron conversion.
